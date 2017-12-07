@@ -1,0 +1,117 @@
+:css
+  .search-menu{
+    font-size:10px;
+  }
+  .tw-table th{
+    width: 25%;
+    padding: 6px;
+    text-align: left;
+    vertical-align: top;
+    ncolor: #333;
+    background-color: #eee;
+    border: 1px solid #b9b9b9;
+  }
+  .tw-table td{
+    padding: 6px;
+    background-color: #fff;
+    border: 1px solid #b9b9b9;
+  }
+  .tw-id-chld, .tw-time-chld{
+    font-size:5px;
+  }
+  .tw-table th.tw-id{
+    width: 1%;
+  }
+  .tw-table th.tw-time{
+    width: 7%;
+  }
+  .tw-table th.tw-name{
+    width: 10%;
+  }
+  .tw-table th.tw-tweet{
+    width: 82%;
+  }
+  #chart-container{
+    margin-top:10px;
+    margin-bottom:10px;
+    padding:10px; 
+  }
+
+
+
+.search-container
+  %h2 twitter analitics
+
+  .search-menu
+    = search_form_for @q do |f|
+      = f.label :tw_fulltext_cont, 'tweet:'
+      = f.search_field :tw_fulltext_cont
+      = f.label :tw_fulltext_not_cont, 'キーワードが含まれないtweet:'
+      = f.search_field :tw_fulltext_not_cont
+      %br
+      = f.label :user_name_cont, 'user name:'
+      = f.search_field :user_name_cont
+      %br
+      = f.label :created_at, 'tweet date'
+      = f.date_select :tw_create_at_gteq, include_blank: true
+      〜
+      = f.date_select :tw_create_at_lteq_end_of_day, include_blank: true 
+      %br
+      = link_to 'clear', '/tweets'
+      %br
+      = f.submit 'search'
+
+  %h3 検索結果(#{@tweets.total_count}件)
+  .search-menu
+    = paginate @tweets
+    %table.tw-table
+      %thead
+        %tr
+          %th.tw-name  user_name
+          %th.tw-name= link_to 'tw_num', 'tweets?type=sort_twnum'
+          %th.tw-tweet tweet
+          %th.tw-time  tw_time
+          %th.tw-id    detail
+      %tbody
+      - if (params['type'] == 'sort_twnum')
+        - @tw_user.sort {|(k1, v1), (k2, v2)| v2 <=> v1}.each do |tw_user, tw_num|
+          - tw = @tweets.where(user_name: tw_user)[0]
+          %tr
+            %td.tw-name-chld= link_to tw_user, '/tweets?q%5Buser_name_cont%5D=' + tw_user
+            %td.tw-name-chld= tw_num
+            %td=              tw.tw_fulltext
+            %td.tw-time-chld= tw.tw_create_at
+            %td.tw-id-chld=   link_to 'detail', 'https://twitter.com/' + tw.user_name + '/status/' + tw.tw_id, :target => "_blank"
+      - else
+        - @tweets.each do |tw|
+          %tr
+            %td.tw-name-chld= link_to tw.user_name, '/tweets?q%5Buser_name_cont%5D=' + tw.user_name
+            %td.tw-name-chld= @tw_user[tw.user_name]
+            %td=              tw.tw_fulltext
+            %td.tw-time-chld= tw.tw_create_at
+            %td.tw-id-chld=   link_to 'detail', 'https://twitter.com/' + tw.user_name + '/status/' + tw.tw_id, :target => "_blank"
+
+    = paginate @tweets
+
+  %h3 検索件数推移
+  #chart-container
+    = link_to 'user', '/tweets?q%5Buser_name_cont%5D=ReijiAbe'
+    = link_to '12/09', '/tweets?q%5Btw_create_at_gteq%281i%29%5D=2016&q%5Btw_create_at_gteq%282i%29%5D=12&q%5Btw_create_at_gteq%283i%29%5D=9&q%5Btw_create_at_lteq_end_of_day%281i%29%5D=2016&q%5Btw_create_at_lteq_end_of_day%282i%29%5D=12&q%5Btw_create_at_lteq_end_of_day%283i%29%5D=9'
+    #chart
+  = javascript_include_tag 'demo_c3'
+
+:javascript
+  view_chart( gon.tw_count['dates'], gon.tw_count['counts']);
+
+/           %td.tw-name-chld= @tweets.tw_count(tw.user_name)
+/ %th.tw-name=  sort_link(@tweets, :user_name, 'name')
+/ %th.tw-tweet= sort_link(@tweets, :tw_fulltext, 'tweet') 
+/ %th.tw-time=  sort_link(@tweets, :tw_create_at, 'tw_time'
+
+
+/ @tweets.where(user_name: tw_user).tw_fulltext
+/ %td.tw-name-chld= @tweets.where(user_name: user_name).user_name
+/ %td.tw-name-chld= tw_num
+/ %td=              @tweets[tw_user].tw_fulltext
+/ %td.tw-time-chld= @tweets[tw_user].tw_create_at
+/ %td.tw-id-chld=   link_to 'detail', 'https://twitter.com/' + @tweets[tw_user].user_name + '/status/' + @tweets[tw_user].tw_id, :target => "_blank"

@@ -1,0 +1,12 @@
+<h3> tweet analitics </h3>
+
+
+<%=
+@tweets.each do |tws|
+
+  tws.tw_fulltext
+   
+end
+%>
+
+
