@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  tw_id: 1
+  tw_create_at: 2016-12-03 02:43:36
+  user_name: MyString
+  tw_fulltext: MyText
+
+two:
+  tw_id: 1
+  tw_create_at: 2016-12-03 02:43:36
+  user_name: MyString
+  tw_fulltext: MyText
